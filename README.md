@@ -8,8 +8,6 @@ The **Expense Tracker** is a simple web application built using **HTML, CSS, and
 
 - Add income and expense transactions.
 - View total balance, income, and expenses.
-- Delete transactions when needed.
-- Data persistence using **Local Storage**.
 - User-friendly and responsive UI.
 
 ## 🚀 Technologies Used
