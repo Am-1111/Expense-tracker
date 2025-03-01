@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 1s;
+      color: #333;
+    }
+
+    h2,
+    h3 {
+      color: #2575fc;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background-color: #6a11cb;
+      border-color: #4a0d99;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+      background-color: #4a0d99;
+      border-color: #320a66;
+      transform: scale(1.05);
+    }
+
+    .btn-danger:hover {
+      transform: scale(1.05);
+    }
+
+    .form-control,
+    .form-select {
+      border: 1px solid #4a0d99;
+      border-radius: 10px;
+      transition: 0.3s ease-in-out;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      box-shadow: 0px 0px 8px rgba(106, 17, 203, 0.8);
+    }
+
+    .expense-item {
+      transition: all 0.3s ease-in-out;
+    }
+
+    .expense-item:hover {
+      background-color: #f1f3f5;
+      transform: scale(1.02);
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard {
+      margin-top: 20px;
+      background: #eef2ff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container animate__animated animate__fadeInDown">
+    <h2>Welcome to Your Personal Expense Tracker</h2>
+    <p class="text-center">Keep track of your expenses with detailed insights and beautiful visuals.</p>
+    <div class="input-group mt-3">
+      <input type="text" id="expense-name" class="form-control" placeholder="Expense Name" required>
+      <input type="number" id="expense-amount" class="form-control" placeholder="Amount (₹)" required>
+      <input type="date" id="expense-date" class="form-control" required>
+      <select id="expense-category" class="form-select">
+        <option value="Food">Food</option>
+        <option value="Transport">Transport</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Others">Others</option>
+      </select>
+    </div>
+    <button class="btn btn-primary w-100 mt-3" onclick="addExpense()">Add Expense</button>
+
+    <h3 class="mt-4">Expense List</h3>
+    <table class="table table-hover">
+      <thead class="table-primary">
+        <tr>
+          <th>Name</th>
+          <th>Amount (₹)</th>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="expense-table"></tbody>
+    </table>
+
+    <div class="dashboard">
+      <h3>Expense Breakdown</h3>
+      <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let expenses = [];
+
+    function addExpense() {
+      const name = document.getElementById("expense-name").value;
+      const amount = parseFloat(document.getElementById("expense-amount").value);
+      const date = document.getElementById("expense-date").value;
+      const category = document.getElementById("expense-category").value;
+
+      if (!name || !amount || !date) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      expenses.push({ name, amount, date, category });
+      updateTable();
+      updateChart();
+    }
+
+    function deleteExpense(index) {
+      expenses.splice(index, 1);
+      updateTable();
+      updateChart();
+    }
+
+    function updateTable() {
+      const tableBody = document.getElementById("expense-table");
+      tableBody.innerHTML = "";
+      expenses.forEach((expense, index) => {
+        tableBody.innerHTML += `
+                    <tr class="expense-item animate__animated animate__fadeInUp">
+                        <td>${expense.name}</td>
+                        <td>₹${expense.amount.toFixed(2)}</td>
+                        <td>${expense.date}</td>
+                        <td>${expense.category}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteExpense(${index})">Delete</button></td>
+                    </tr>
+                `;
+      });
+    }
+
+    function updateChart() {
+      const categories = {};
+      expenses.forEach(exp => {
+        categories[exp.category] = (categories[exp.category] || 0) + exp.amount;
+      });
+
+      const ctx = document.getElementById("expenseChart").getContext("2d");
+      if (window.expenseChartInstance) {
+        window.expenseChartInstance.destroy();
+      }
+      window.expenseChartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(categories),
+          datasets: [{
+            data: Object.values(categories),
+            backgroundColor: ["#2575fc", "#6a11cb", "#4a0d99", "#320a66"],
+          }]
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
